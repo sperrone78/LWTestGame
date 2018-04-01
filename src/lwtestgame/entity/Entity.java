@@ -5,6 +5,7 @@
  */
 package lwtestgame.entity;
 
+import lwtestgame.assets.Assets;
 import lwtestgame.collision.AABB;
 import lwtestgame.collision.Collision;
 import lwtestgame.io.Window;
@@ -29,7 +30,6 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
  * @author sperr
  */
 public abstract class Entity {
-    private static Model model;
     //private Texture texture;
     protected AABB boundingBox;
     protected Animation[] animations;
@@ -123,33 +123,7 @@ public abstract class Entity {
         shader.setUniform("sampler", 0);
         shader.setUniform("projection", transform.getProjection(target));
         animations[useAnimation].bind(0);
-        model.render();
-    }
-    
-    public static void initAsset () {
-        float[] vertices = new float[] {
-            -1f, 1f, 0, //TOP Left  0
-            1f, 1f, 0, // Top Right 1
-            1f, -1f,0, // Bottom Right 2
-            -1f, -1f,0, //Bottom Left 3
-
-        };
-        float [] texture = new float[] {
-            0,0,
-            1,0,
-            1,1,
-            0,1,
-        };
-        
-        int[] indices = new int[] {
-            0,1,2,
-            2,3,0
-        };  
-        model = new Model(vertices, texture, indices);
-    }
-    
-    public static void deleteAsset() {
-        model = null;
+        Assets.getModel().render();
     }
 
     public void collideWithEntity(Entity entity) {

@@ -5,10 +5,12 @@
  */
 package lwtestgame.game;
 
+import lwtestgame.assets.Assets;
 import lwtestgame.collision.AABB;
 import lwtestgame.entity.Entity;
 import lwtestgame.entity.Player;
 import lwtestgame.entity.Transform;
+import lwtestgame.gui.Gui;
 import lwtestgame.render.Texture;
 import lwtestgame.io.Timer;
 import lwtestgame.io.Window;
@@ -66,11 +68,15 @@ public class LWTestGame {
         glEnable(GL_TEXTURE_2D);
         
         TileRenderer tiles = new TileRenderer();
-        Entity.initAsset();
+        Assets.initAsset();
         Shader shader = new Shader("shader");
         
         World world = new World("testLevel", camera);
-     
+        world.calculateView(window);
+        
+        Gui gui = new Gui(window);
+        
+        
         double frameCap = 1.0/60.0;
         double frameTime = 0;
         int frames = 0;
@@ -87,6 +93,12 @@ public class LWTestGame {
             time = time2;
             
             while (unprocessed >= frameCap) {
+                if (window.hasResized()) {
+                    camera.setProjection (window.getWidth(), window.getHeight());
+                    gui.resizeCamera(window);
+                    world.calculateView(window);
+                    glViewport(0,0,window.getWidth(), window.getHeight());
+                }
                 unprocessed -= frameCap;
                 canRender = true;
                 //target = scale;
@@ -112,13 +124,14 @@ public class LWTestGame {
                 //shader.setUniform("sampler", 0);
                 //shader.setUniform("projection", camera.getProjection().mul(target));
                 //model.render();
-                world.render(tiles, shader, camera, window);
+                world.render(tiles, shader, camera);
+                gui.render();
                 window.swapBuffers();
                 frames++;
             }
 
         }
-        Entity.deleteAsset();
+        Assets.deleteAsset();
         glfwTerminate();
     }
 }

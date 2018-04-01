@@ -12,13 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
 import lwtestgame.collision.AABB;
-import lwtestgame.entity.Entity;
-import lwtestgame.entity.Player;
-import lwtestgame.entity.Transform;
+import lwtestgame.entity.*;
 import lwtestgame.io.Window;
-import lwtestgame.render.Animation;
-import lwtestgame.render.Camera;
-import lwtestgame.render.Shader;
+import lwtestgame.render.*;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -36,7 +32,8 @@ public class World {
     private int height;
     private Matrix4f world;
     private int scale;
-    private final int view = 48;
+    private int viewX = 48;
+    private int viewY = 48;
     
     public World (String world, Camera camera) {
         try {
@@ -45,7 +42,7 @@ public class World {
         
             width = tileSheet.getWidth();
             height = tileSheet.getHeight();
-            scale = 16;
+            scale = 32;
             
             this.world = new Matrix4f().setTranslation(new Vector3f(0));
             this.world.scale(scale);
@@ -68,7 +65,7 @@ public class World {
                     Tile t;
                     try {
                         t = Tile.tiles[red];
-                        //System.out.println("I got a red at x = " + x + " and y at "+y);
+                        //System.out.println("I got a red at x = " + x + " and y at "+y+" : "+red);
                     } catch (ArrayIndexOutOfBoundsException e) {
                         //System.out.println("I got a red at x = " + x + " and y at " +y);
                         t = null;
@@ -114,7 +111,7 @@ public class World {
     public World () {
         width = 128;
         height = 128;
-        scale = 16;
+        scale = 32;
         
         tiles = new byte[width * height];
         boundingBoxes = new AABB[width*height];
@@ -122,15 +119,20 @@ public class World {
         world.scale(scale);
     }
     
-    public void render (TileRenderer render, Shader shader, Camera camera, Window window) {
-       int posX = ((int)camera.getPosition().x + (window.getWidth()/2)) / (scale * 2);
-       int posY = ((int)camera.getPosition().y - (window.getHeight()/2)) / (scale * 2);
+    public void calculateView(Window window) {
+        viewX = (window.getWidth() / (scale * 2)) + 4;
+        viewY = (window.getHeight() / (scale * 2)) + 4;
+    }
+    
+    public void render (TileRenderer render, Shader shader, Camera camera) {
+       int posX = (int)camera.getPosition().x  / (scale * 2);
+       int posY = (int)camera.getPosition().y  / (scale * 2);
        
-       for (int i = 0; i< view; i++) {
-           for (int j = 0; j < view; j++) {
-               Tile t = getTile(i-posX, j + posY);
+       for (int i = 0; i< viewX; i++) {
+           for (int j = 0; j < viewY; j++) {
+               Tile t = getTile(i-posX-(viewX/2)+1, j + posY-(viewY/2));
                if (t != null)
-                   render.renderTile(t,i-posX, -j-posY, shader, world, camera);
+                   render.renderTile(t,i-posX-(viewX/2)+1, -j-posY+(viewY/2), shader, world, camera);
            }
        }
        

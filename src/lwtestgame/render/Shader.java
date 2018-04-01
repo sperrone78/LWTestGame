@@ -66,6 +66,13 @@ public class Shader {
         }
     }
     
+    public void setUniform(String name, Vector4f value) {
+        int location = glGetUniformLocation(program, name);
+        if (location != -1) {
+            glUniform4f(location, value.x, value.y, value.z, value.w);
+        }
+    }
+    
     public void setUniform(String name, Matrix4f value) {
         int location = glGetUniformLocation(program, name);
         FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
